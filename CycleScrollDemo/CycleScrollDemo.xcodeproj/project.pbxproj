@@ -141,7 +141,6 @@
 				TargetAttributes = {
 					41E92E321ED9AFD60057BA77 = {
 						CreatedOnToolsVersion = 8.3.2;
-						DevelopmentTeam = RDN9E95292;
 						ProvisioningStyle = Automatic;
 					};
 				};
@@ -313,8 +312,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = RDN9E95292;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = CycleScrollDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pcc.CycleScrollDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -325,8 +325,9 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				DEVELOPMENT_TEAM = RDN9E95292;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = CycleScrollDemo/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_BUNDLE_IDENTIFIER = com.pcc.CycleScrollDemo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -352,6 +353,7 @@
 				41E92E4C1ED9AFD60057BA77 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};

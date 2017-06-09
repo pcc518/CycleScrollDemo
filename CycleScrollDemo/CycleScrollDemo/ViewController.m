@@ -19,8 +19,10 @@
    
     self.view.backgroundColor = [UIColor colorWithWhite:0.7 alpha:1.f];
     
-    CycleView *cycleView = [[CycleView alloc]initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 400) Interval:3];
+    CycleView *cycleView = [[CycleView alloc]initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 400) Interval:5];
     cycleView.imgNameArray = [@[@"0.gif",@"1.jpg",@"2.jpg",@"3.jpg",@"4.jpg",@"5.jpg"]mutableCopy];
+
+    
     [self.view addSubview:cycleView];
     
     [cycleView addTapBlock:^(NSInteger index) {

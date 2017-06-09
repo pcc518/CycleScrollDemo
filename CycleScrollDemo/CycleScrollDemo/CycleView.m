@@ -40,6 +40,7 @@
         //首先初始化
         self.imgArray = [NSMutableArray new];
         self.viewArray = [NSMutableArray new];
+        self.interval = interval;
         self.scrollView = [[UIScrollView alloc]initWithFrame:self.bounds];//not frame
         //设置滚动范围
         self.scrollView.contentSize = CGSizeMake(frame.size.width * 3, frame.size.height);
@@ -69,18 +70,13 @@
 - (void)setImgNameArray:(NSMutableArray *)imgNameArray{
     if (_imgNameArray != imgNameArray) {
         _imgNameArray = imgNameArray;
-        //设置pageControl
-        [self.pageControl removeFromSuperview];
-        //初始化
-        self.pageControl = [[UIPageControl alloc]initWithFrame:CGRectMake(0, self.frame.size.height - 40, self.frame.size.width, 40)];
-        [self addSubview:self.pageControl];
-        //属性
-        self.pageControl.currentPage = 0;
-        self.pageControl.numberOfPages = _imgNameArray.count;
-        self.pageControl.pageIndicatorTintColor = [UIColor greenColor];
-        self.pageControl.currentPageIndicatorTintColor = [UIColor redColor];
-        //使点击page时页面不会翻转
-        self.pageControl.enabled = NO;
+        
+        [self setPageControl];
+        [self addTimer];
+        [self addTapGesture];
+        
+        //设置当前偏移量
+        [self.scrollView setContentOffset:CGPointMake(self.frame.size.width, 0) animated:NO];
         
         //遍历图片数组
         for (int i = 0; i < _imgNameArray.count; i++) {
@@ -90,35 +86,68 @@
                 
                 [self.viewArray[i] setImage:img];
             }
+
             
         }
-        //初始化timer
-        if (self.interval <= 0) {
-            self.timer =  [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(addTimerAction) userInfo:nil repeats:YES];
-            
-        }else{
-            self.timer =  [NSTimer scheduledTimerWithTimeInterval:self.interval target:self selector:@selector(addTimerAction) userInfo:nil repeats:YES];
-        }
-        
-        
-        //设置当前偏移量
-        [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width, 0) animated:NO];
-        
         //初始下标
         self.index = 0;
         [self layoutImages];
         
-        //点击事件
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapCycleViewAction:)];
-        [self.viewArray[1] addGestureRecognizer:tap];
         
-        //打开交互(label和UiimageView没有点击手势)
-        [self.viewArray[1] setUserInteractionEnabled:YES];
     }
 }
 
+#pragma mark - pageControl Methods
+- (void)setPageControl {
+    //设置pageControl
+    [self.pageControl removeFromSuperview];
+    //初始化
+    self.pageControl = [[UIPageControl alloc]initWithFrame:CGRectMake(0, self.frame.size.height - 40, self.frame.size.width, 40)];
+    
+    //属性
+    self.pageControl.currentPage = 0;
+    self.pageControl.numberOfPages = _imgNameArray.count;
+    //背景颜色
+    self.pageControl.pageIndicatorTintColor = [UIColor greenColor];
+    //当前指示颜色
+    self.pageControl.currentPageIndicatorTintColor = [UIColor redColor];
+    //使点击page时页面不会翻转
+    self.pageControl.enabled = NO;
+    
+    [self addSubview:self.pageControl];
+    
+}
+#pragma mark -  计时 Methods
+- (void)addTimer {
+    [self removeTimer];
+    //初始化timer
+    if (self.interval <= 0) {
+        self.timer =  [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(addTimerAction) userInfo:nil repeats:YES];
+        
+    }else{
+        self.timer =  [NSTimer scheduledTimerWithTimeInterval:self.interval target:self selector:@selector(addTimerAction) userInfo:nil repeats:YES];
+        // NSDefaultRunLoopMode(默认): 同一时间只能执行一个任务
+        // NSRunLoopCommonModes(公用): 可以分配一定的时间执行其他任务
+        // 作用:修改timer在runLoop中的模式为NSRunLoopCommonModes
+        // 目的:不管主线程在做什么操作,都会分配一定的时间处理定时器
+        [[NSRunLoop mainRunLoop] addTimer:self.timer forMode:NSRunLoopCommonModes];
+    }
+    
+}
+- (void)removeTimer {
+    [self.timer invalidate];
+    self.timer = nil;
+}
 
-
+#pragma mark - 添加手势 Methods
+- (void)addTapGesture{
+    //点击事件
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(tapCycleViewAction:)];
+    [self.viewArray[1] addGestureRecognizer:tap];
+    
+    //打开交互(label和UiimageView没有点击手势)
+    [self.viewArray[1] setUserInteractionEnabled:YES];
+}
 
 //index的setter方法
 - (void)setIndex:(NSInteger)index{
@@ -134,7 +163,7 @@
     [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width * 2, 0) animated:YES];
     
     self.index = (self.index + 1) % self.imgNameArray.count;
-    [self layoutImages];
+    
     
     
 }
@@ -142,7 +171,9 @@
 //图片的切换设置布局
 - (void)layoutImages{
     for (int i = 0; i < 3; i++) {
+        
         [self.viewArray[i] setImage:self.imgArray[(self.index - 1 + self.imgNameArray.count + i ) % self.imgNameArray.count]];
+//        [self.viewArray[i] sd_setImageWithURL:self.imgArray[(self.index - 1 + self.imgNameArray.count + i ) % self.imgNameArray.count]];
     }
     
 }
@@ -151,6 +182,7 @@
 - (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView{
     
     [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width, 0) animated:NO];
+    [self layoutImages];
     
 }
 
@@ -191,7 +223,7 @@ static CGFloat x = 0;
     [self layoutImages];
     
     //回位操作(拖动时不会走scrollViewDidEndScrollingAnimation方法,需再次回位)
-    [self.scrollView setContentOffset:CGPointMake(self.scrollView.frame.size.width, 0) animated:NO];
+    [self.scrollView setContentOffset:CGPointMake(self.frame.size.width, 0) animated:NO];
 }
 
 
@@ -205,7 +237,6 @@ static CGFloat x = 0;
 - (void)addTapBlock:(void (^)(NSInteger))block{
     self.tapBlock = block;
 }
-
 
 
 @end
